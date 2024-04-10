@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 
 const verify = (req,res,next) => {
-    const cookies = req.cookies
+    const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(401);
     const authHeader = req.headers['authorization'];
-    if (!authHeader) return res.sendStatus(401);
+    if (!authHeader || (!cookies?.jwt && authHeader)) return res.sendStatus(401);
     const token = authHeader.split(' ')[1];
     jwt.verify(
         token,
@@ -18,8 +18,9 @@ const verify = (req,res,next) => {
 }
 
 const verifyAuth = (req,res,next) => {
+    const cookies = req.cookies
     const authHeader = req.headers['authorization'];
-    if (!authHeader) return next();
+    if (!authHeader || (!cookies?.jwt && authHeader)) return next();
     const token = authHeader.split(' ')[1];
     jwt.verify(
         token,
