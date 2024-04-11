@@ -4,6 +4,7 @@ const authRouter = require("./routes/auth");
 const cookieParser = require("cookie-parser");
 const { verify } = require("./middleware/auth");
 const cors = require("cors")
+const pool = require("./config/database");
 
 // Env Variables
 require("dotenv").config();
@@ -19,9 +20,10 @@ app.use(cors({
 }))
 
 
-app.get("/protected", verify, (req,res) => {
-    res.json(req.user);
-}); // A sample route to test if verify jwt is working
+app.get("/protected", verify, async (req,res) => {
+    const user = await pool.query(`SELECT username FROM users WHERE id = $1`, [req.user])
+    res.json(user.rows[0].username);
+});
 
 
 app.use("/auth", authRouter);
